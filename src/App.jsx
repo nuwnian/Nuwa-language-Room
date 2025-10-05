@@ -1,41 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { User, Wand2, Globe, BookOpen, Sparkles } from 'lucide-react';
 
-// Simple icon components (replacing Lucide icons)
-const UserIcon = ({ className = "" }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-  </svg>
-);
-
-const WandIcon = ({ className = "" }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21l9.5-9.5M15 5l2 2m-2-2l2-2m-2 2l-2-2m2 2l-2 2" />
-  </svg>
-);
-
-const GlobeIcon = ({ className = "" }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-);
-
-const BookIcon = ({ className = "" }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-  </svg>
-);
-
-const SparklesIcon = ({ className = "" }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-  </svg>
-);
-
+// Simple UI components since shadcn/ui might not be installed
 const Separator = ({ className = "" }) => (
   <div className={`border-t ${className}`}></div>
 );
-
-// Simple UI components since shadcn/ui might not be installed
 const Card = ({ children, className = "" }) => (
   <div className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`}>
     {children}
@@ -91,6 +60,16 @@ export default function NuwaLanguageRoom() {
     }
   });
   const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isTyping]);
 
   // Simulate AI responses
   const getAIResponse = (userMessage) => {
@@ -200,16 +179,17 @@ export default function NuwaLanguageRoom() {
       </header>
 
       {/* Main Content */}
-      <main className="flex flex-1 p-4 gap-4">
+      <main className="flex flex-1 p-4 gap-4 min-h-0">
         {/* Chatbox */}
-        <Card className="flex-1 flex flex-col bg-[#F5F5DC] shadow-md">
-          <CardContent className="flex flex-col flex-1 overflow-y-auto p-4 space-y-2">
+        <Card className="flex-1 flex flex-col bg-[#F5F5DC] shadow-md h-full">
+          {/* Messages Container */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-0">
             {messages.map((msg) => (
               <div
                 key={msg.id}
                 className={`p-2 rounded-xl max-w-xs shadow-sm ${
                   msg.from === "user"
-                    ? "bg-[#FAF3E0] self-end text-gray-800"
+                    ? "bg-[#FAF3E0] self-end text-gray-800 ml-auto"
                     : "bg-[#E6F0FA] self-start text-gray-800"
                 }`}
               >
@@ -228,29 +208,33 @@ export default function NuwaLanguageRoom() {
                 </div>
               </div>
             )}
-          </CardContent>
-          <div className="p-3 flex gap-2 border-t bg-[#DDE7DD]">
+            {/* Invisible element to scroll to */}
+            <div ref={messagesEndRef} />
+          </div>
+          
+          {/* Sticky Input Area */}
+          <div className="sticky bottom-0 p-3 flex gap-2 border-t bg-[#DDE7DD] backdrop-blur-sm">
             <Textarea
               placeholder="Type your message..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              className="flex-1 border-gray-300 focus:ring-gray-500"
+              className="flex-1 border-gray-300 focus:ring-gray-500 resize-none"
               rows={2}
             />
-            <Button onClick={handleSend} className="bg-[#A3BFA4] hover:bg-[#8EA890]">
+            <Button onClick={handleSend} className="bg-[#A3BFA4] hover:bg-[#8EA890] self-end">
               ➤
             </Button>
           </div>
         </Card>
 
         {/* Enhanced Correction Panel */}
-        <div className="w-1/3 flex flex-col h-full bg-[var(--bamboo-beige)] p-6">
+        <div className="w-1/2 flex flex-col h-full bg-[#F8F5F0] p-6">
           {/* Header */}
           <div className="text-center mb-6">
-            <h2 className="text-xl font-medium text-[var(--warm-text)] mb-2">Learning Breakdown</h2>
-            <div className="flex items-center justify-center gap-2 text-[var(--mint-green)] bg-[var(--soft-green)] px-4 py-2 rounded-full">
-              <SparklesIcon className="w-4 h-4" />
+            <h2 className="text-xl font-medium text-[#4A5D23] mb-2">Learning Breakdown</h2>
+            <div className="flex items-center justify-center gap-2 text-[#6B8E4E] bg-[#E8F0E6] px-4 py-2 rounded-full">
+              <Sparkles className="w-4 h-4" />
               <span className="text-sm">Nice try! You're improving 🌱</span>
             </div>
             <div className="flex gap-1 mt-4 justify-center">
@@ -258,7 +242,7 @@ export default function NuwaLanguageRoom() {
                 onClick={() => setCurrentLanguage("EN")}
                 className={`px-3 py-1 text-xs rounded-full transition-colors ${
                   currentLanguage === "EN" 
-                    ? "bg-[var(--mint-green)] text-white" 
+                    ? "bg-[#6B8E4E] text-white" 
                     : "bg-gray-200 text-gray-600 hover:bg-gray-300"
                 }`}
               >
@@ -268,7 +252,7 @@ export default function NuwaLanguageRoom() {
                 onClick={() => setCurrentLanguage("JP")}
                 className={`px-3 py-1 text-xs rounded-full transition-colors ${
                   currentLanguage === "JP" 
-                    ? "bg-[var(--mint-green)] text-white" 
+                    ? "bg-[#6B8E4E] text-white" 
                     : "bg-gray-200 text-gray-600 hover:bg-gray-300"
                 }`}
               >
@@ -278,7 +262,7 @@ export default function NuwaLanguageRoom() {
                 onClick={() => setCurrentLanguage("CN")}
                 className={`px-3 py-1 text-xs rounded-full transition-colors ${
                   currentLanguage === "CN" 
-                    ? "bg-[var(--mint-green)] text-white" 
+                    ? "bg-[#6B8E4E] text-white" 
                     : "bg-gray-200 text-gray-600 hover:bg-gray-300"
                 }`}
               >
@@ -291,51 +275,51 @@ export default function NuwaLanguageRoom() {
           <Card className="bg-white border-0 shadow-sm rounded-2xl p-6 transition-all duration-200 hover:shadow-md flex-1">
             {/* User Section */}
             <div className="flex items-start gap-3 mb-6">
-              <div className="w-10 h-10 bg-[var(--sakura-pink)] rounded-full flex items-center justify-center flex-shrink-0">
-                <UserIcon className="w-5 h-5 text-[var(--warm-text)]" />
+              <div className="w-10 h-10 bg-[#F4D4D4] rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="w-5 h-5 text-[#4A5D23]" />
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-[var(--warm-text)] mb-2">Your Sentence</h3>
-                <p className="text-sm text-[var(--warm-text)] leading-relaxed bg-[var(--bamboo-beige)] p-3 rounded-xl">
+                <h3 className="font-medium text-[#4A5D23] mb-2">Your Sentence</h3>
+                <p className="text-sm text-[#4A5D23] leading-relaxed bg-[#fce7e9] p-3 rounded-xl">
                   {lastCorrection.user}
                 </p>
               </div>
             </div>
 
-            <Separator className="my-6 bg-[var(--border)]" />
+            <Separator className="my-6 bg-[#E5E7EB]" />
 
             {/* Correction Section */}
             <div className="flex items-start gap-3 mb-6">
-              <div className="w-10 h-10 bg-[var(--soft-green)] rounded-full flex items-center justify-center flex-shrink-0">
-                <WandIcon className="w-5 h-5 text-[var(--mint-green)]" />
+              <div className="w-10 h-10 bg-[#E8F0E6] rounded-full flex items-center justify-center flex-shrink-0">
+                <Wand2 className="w-5 h-5 text-[#6B8E4E]" />
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-[var(--warm-text)] mb-2">Corrected Version</h3>
-                <p className="text-sm text-[var(--warm-text)] leading-relaxed bg-[var(--soft-green)] p-3 rounded-xl">
+                <h3 className="font-medium text-[#4A5D23] mb-2">Corrected Version</h3>
+                <p className="text-sm text-[#4A5D23] leading-relaxed bg-[#fce7e9] p-3 rounded-xl">
                   {lastCorrection.correction}
                 </p>
               </div>
             </div>
 
-            <Separator className="my-6 bg-[var(--border)]" />
+            <Separator className="my-6 bg-[#E5E7EB]" />
 
             {/* Translation Section */}
             <div className="flex items-start gap-3 mb-6">
-              <div className="w-10 h-10 bg-[var(--sakura-pink)] rounded-full flex items-center justify-center flex-shrink-0">
-                <GlobeIcon className="w-5 h-5 text-[var(--warm-text)]" />
+              <div className="w-10 h-10 bg-[#F4D4D4] rounded-full flex items-center justify-center flex-shrink-0">
+                <Globe className="w-5 h-5 text-[#4A5D23]" />
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-[var(--warm-text)] mb-2">Translation</h3>
+                <h3 className="font-medium text-[#4A5D23] mb-2">Translation</h3>
                 <div className="space-y-2">
-                  <div className="bg-[var(--bamboo-beige)] p-3 rounded-xl">
-                    <p className="text-xs font-medium text-[var(--mint-green)] mb-1">English</p>
-                    <p className="text-sm text-[var(--warm-text)] leading-relaxed">
+                  <div className="bg-[#fce7e9] p-3 rounded-xl">
+                    <p className="text-xs font-medium text-[#6B8E4E] mb-1">English</p>
+                    <p className="text-sm text-[#4A5D23] leading-relaxed">
                       {lastCorrection.translation.english}
                     </p>
                   </div>
-                  <div className="bg-[var(--bamboo-beige)] p-3 rounded-xl">
-                    <p className="text-xs font-medium text-[var(--mint-green)] mb-1">Indonesian</p>
-                    <p className="text-sm text-[var(--warm-text)] leading-relaxed">
+                  <div className="bg-[#fce7e9] p-3 rounded-xl">
+                    <p className="text-xs font-medium text-[#6B8E4E] mb-1">Indonesian</p>
+                    <p className="text-sm text-[#4A5D23] leading-relaxed">
                       {lastCorrection.translation.indonesian}
                     </p>
                   </div>
@@ -343,22 +327,22 @@ export default function NuwaLanguageRoom() {
               </div>
             </div>
 
-            <Separator className="my-6 bg-[var(--border)]" />
+            <Separator className="my-6 bg-[#E5E7EB]" />
 
             {/* Explanation Section */}
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-[var(--soft-green)] rounded-full flex items-center justify-center flex-shrink-0">
-                <BookIcon className="w-5 h-5 text-[var(--mint-green)]" />
+              <div className="w-10 h-10 bg-[#E8F0E6] rounded-full flex items-center justify-center flex-shrink-0">
+                <BookOpen className="w-5 h-5 text-[#6B8E4E]" />
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-[var(--warm-text)] mb-2">Grammar Explanation</h3>
+                <h3 className="font-medium text-[#4A5D23] mb-2">Grammar Explanation</h3>
                 <div className="space-y-3">
-                  <p className="text-sm text-[var(--warm-text)] leading-relaxed bg-[var(--bamboo-beige)] p-3 rounded-xl">
+                  <p className="text-sm text-[#4A5D23] leading-relaxed bg-[#fce7e9] p-3 rounded-xl">
                     {lastCorrection.explanation.rule}
                   </p>
-                  <div className="bg-[var(--soft-green)] p-3 rounded-xl">
-                    <p className="text-xs font-medium text-[var(--mint-green)] mb-1">Formula</p>
-                    <p className="text-sm font-medium text-[var(--warm-text)]">
+                  <div className="bg-[#fce7e9] p-3 rounded-xl">
+                    <p className="text-xs font-medium text-[#6B8E4E] mb-1">Formula</p>
+                    <p className="text-sm font-medium text-[#4A5D23]">
                       {lastCorrection.explanation.formula}
                     </p>
                   </div>

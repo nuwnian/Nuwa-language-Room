@@ -1,24 +1,32 @@
 # Nuwa Language Room
 
-Nuwa Language Room is a multilingual, emotionally supportive SaaS platform designed to help learners practice Japanese, Mandarin, and English through natural conversation. 
+A minimal language learning chat app with AI assistance and grammar correction.
 
-## Features
-- AI-powered chat (no grammar judgment)
-- Correction panel with grammar, translation, and encouragement
-- Multilingual input (virtual keyboard)
-- Progress tracker (bamboo metaphor)
-- Review mode and mini lessons
+## Quick Start
 
-## Tech Stack
-- React + Tailwind CSS (frontend)
-- Supabase (DB + Auth)
-- OpenAI GPT-3.5 + LangChain (AI)
-- Vercel (deployment)
+1. **Start Backend:**
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
 
-## Getting Started
-1. Clone the repo
-2. Install dependencies
-3. Set up your .env file
-4. Run the development server
+2. **Or use Docker:**
+```bash
+docker-compose up --build
+```
 
----
+## API Endpoints
+
+- `POST /chat` - Send message, get AI reply
+- `POST /correction` - Get grammar correction and translation
+- `GET /` - Health check
+
+## Free Upgrades Later
+
+Replace mock responses with:
+- **Ollama** (local LLM)
+- **Hugging Face Transformers**
+- **OpenAI API** (when budget allows)
+
+Backend runs on `http://localhost:8000`

@@ -1,12 +1,7 @@
 {
-  "name": "nuwa_language_room",
-  "version": "1.0.0",
-  "description": "Nuwa Language Room is a multilingual, emotionally supportive SaaS platform designed to help learners practice Japanese, Mandarin, and English through natural conversation.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.13"
+  }
 }

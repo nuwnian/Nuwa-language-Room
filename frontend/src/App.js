@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
-export default function NuwaLanguageRoom() {
+export default function App() {
   const [messages, setMessages] = useState([
     { from: "ai", text: "good night zan 🌙 how's your day been?", timestamp: new Date() },
   ]);

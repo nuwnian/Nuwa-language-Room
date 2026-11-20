@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -20,8 +20,11 @@ FROM nginx:alpine
 # Copy built app to nginx
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Copy nginx config if exists
-COPY nginx.conf /etc/nginx/nginx.conf 2>/dev/null || true
+# Copy nginx config from build stage
+COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Remove default nginx config
+RUN rm /etc/nginx/conf.d/default.conf.bak 2>/dev/null || true
 
 EXPOSE 3000
 
